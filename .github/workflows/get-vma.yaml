@@ -1,0 +1,27 @@
+name: Get VMA
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  get-vma:
+    name: Get VMA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - run: ls -la
+
+      - name: Get VMA
+        run: ./scripts/get-vma.sh

@@ -30,3 +30,4 @@ jobs:
           git add data/
           git diff --staged
           git commit -m "chore(data): Update VMA data"
+          git push

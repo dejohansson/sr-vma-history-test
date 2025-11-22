@@ -28,6 +28,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/
-          git diff --staged
-          git commit -m "chore(data): Update VMA data"
+          git diff --staged || git commit -m "chore(data): Update VMA data"
           git push

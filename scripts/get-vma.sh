@@ -4,7 +4,7 @@ alertsUrl="https://vmaapi.sr.se/api/v3/alerts"
 # alertsUrl="https://vmaapi.sr.se/testapi/v3/examples/data"
 
 echo "Fetching VMA alerts from $alertsUrl"
-response=$(curl -Sv "$alertsUrl" | jq '.')
+response=$(curl -Sv --max-time 60 --connect-timeout 5 --retry 5 --retry-all-errors "$alertsUrl" | jq '.')
 echo "Response:"
 echo "$response"
 echo ""

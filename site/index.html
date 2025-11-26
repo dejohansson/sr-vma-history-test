@@ -136,6 +136,14 @@
       const REPO_URL =
         "https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma";
 
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+
       var items = new vis.DataSet(
         vmaData.map((item, index) => {
           const fileName = `${item.datetime}_${item.type}.json`;
@@ -171,7 +179,7 @@
         zoomable: true,
         maxHeight: window.innerHeight - 250,
         start: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
-        end: new Date(currentDate.getTime() + 60 * 60 * 1000),
+        end: new Date(currentDate.getTime()),
         cluster: {
           maxItems: 1,
           titleTemplate: "{count} Quiet 😴",
@@ -235,23 +243,21 @@
 
       // Function to update cluster labels
       function updateClusterLabels() {
-        setTimeout(function () {
-          const clusterItems = document.querySelectorAll(
-            ".vis-item.vis-cluster"
-          );
-          clusterItems.forEach(function (item) {
-            const content = item.querySelector(".vis-item-content");
-            if (content && content.textContent.match(/^\d+$/)) {
-              const count = content.textContent;
-              content.textContent = count + " Quiet " + "😴";
-            }
-          });
-        }, 100);
+        const clusterItems = document.querySelectorAll(".vis-item.vis-cluster");
+        clusterItems.forEach(function (item) {
+          const content = item.querySelector(".vis-item-content");
+          if (content && content.textContent.match(/^\d+$/)) {
+            const count = content.textContent;
+            content.textContent = count + " Quiet " + "😴";
+          }
+        });
       }
 
+      const debouncedUpdateClusterLabels = debounce(updateClusterLabels, 100);
+
       // Update cluster labels on zoom and range change
-      timeline.on("rangechanged", updateClusterLabels);
-      timeline.on("changed", updateClusterLabels);
+      timeline.on("rangechanged", debouncedUpdateClusterLabels);
+      timeline.on("changed", debouncedUpdateClusterLabels);
 
       // Initial update
       updateClusterLabels();
@@ -264,7 +270,7 @@
         });
       });
 
-      // Set initial visible window
+      // Scroll into view
       const initialStart = new Date(
         new Date(currentDate).getTime() - 24 * 60 * 60 * 1000
       );

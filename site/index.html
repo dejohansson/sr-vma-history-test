@@ -133,13 +133,16 @@
     <script type="module">
       import { vmaData } from "./data.js?v=VERSION_PLACEHOLDER";
 
+      const REPO_URL =
+        "https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma";
+
       var items = new vis.DataSet(
         vmaData.map((item, index) => {
           const fileName = `${item.datetime}_${item.type}.json`;
-          const githubUrl = `https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma/${fileName}`;
+          const githubUrl = `${REPO_URL}/${fileName}`;
           return {
             id: index + 1,
-            content: `<a href="${githubUrl}" target="_blank"">${
+            content: `<a href="${githubUrl}" target="_blank">${
               item.type === "quiet" ? "Quiet 😴" : "Alert 📢"
             }</a>`,
             start: item.datetime,
@@ -223,7 +226,7 @@
       });
 
       const fileName = `${latestItem.datetime}_${latestItem.type}.json`;
-      const githubUrl = `https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma/${fileName}`;
+      const githubUrl = `${REPO_URL}/${fileName}`;
       latestUpdateLink.href = githubUrl;
 
       // Create a Timeline

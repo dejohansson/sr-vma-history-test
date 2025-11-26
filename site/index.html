@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SR VMA Alerts 📢</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta content="utf-8" http-equiv="encoding" />
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/vis-timeline@8.4.0/standalone/umd/vis-timeline-graph2d.min.js"
+    ></script>
+    <style>
+      body {
+        background-color: #202328;
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #timeline {
+        width: 100%;
+        height: calc(100vh - 250px);
+        border: 1px solid #2d2f35;
+        background-color: #212429;
+        overflow: hidden;
+      }
+
+      /* Timeline styling */
+      .vis-timeline {
+        border: none;
+        background-color: #212429;
+      }
+
+      .vis-time-axis .vis-text {
+        color: #c5d1e6;
+        font-weight: 500;
+      }
+
+      .vis-time-axis .vis-grid.vis-minor {
+        border-color: #2d2f35;
+      }
+
+      .vis-time-axis .vis-grid.vis-major {
+        border-color: #52555a;
+      }
+
+      /* Item styling */
+      .vis-item {
+        background-color: #98a7c3;
+        border-color: #98a7c3;
+        color: #1a1c20;
+        font-weight: 600;
+        font-size: 24px;
+      }
+
+      .vis-item a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .vis-item a:hover {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .vis-item a:visited {
+        color: inherit;
+      }
+
+      .vis-item.alert-item {
+        background-color: #e61f43;
+        border-color: #c12745;
+        color: #ffffff;
+      }
+
+      /* Panel styling */
+      .vis-panel {
+        background-color: #212429;
+      }
+
+      .vis-labelset .vis-label {
+        color: #c5d1e6;
+        border-color: #2d2f35;
+        font-weight: 500;
+      }
+
+      /* Current time line */
+      .vis-current-time {
+        background-color: #4a9eff;
+        width: 3px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a
+      id="latest-update-link"
+      href=""
+      target="_blank"
+      style="
+        display: block;
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #2d2f35;
+        background-color: #212429;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+      "
+    >
+      <div id="latest-update">
+        <h2 style="margin: 0 0 15px 0; color: #c5d1e6; font-size: 28px">
+          Latest VMA Update
+        </h2>
+        <div
+          id="update-content"
+          style="display: flex; align-items: center; gap: 15px"
+        >
+          <span id="update-emoji" style="font-size: 48px"></span>
+          <div>
+            <div
+              id="update-type"
+              style="font-size: 24px; font-weight: 600; margin-bottom: 5px"
+            ></div>
+            <div id="update-time" style="font-size: 16px; color: #c5d1e6"></div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <div id="timeline"></div>
+
+    <script type="module">
+      import { vmaData } from "./data.js?v=VERSION_PLACEHOLDER";
+
+      const REPO_URL =
+        "https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma";
+
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+
+      var items = new vis.DataSet(
+        vmaData.map((item, index) => {
+          const fileName = `${item.datetime}_${item.type}.json`;
+          const githubUrl = `${REPO_URL}/${fileName}`;
+          return {
+            id: index + 1,
+            content: `<a href="${githubUrl}" target="_blank">${
+              item.type === "quiet" ? "Quiet 😴" : "Alert 📢"
+            }</a>`,
+            start: item.datetime,
+            className: item.type === "alert" ? "alert-item" : "",
+          };
+        })
+      );
+
+      const currentDate = new Date();
+
+      // Configuration for the Timeline
+      var options = {
+        margin: {
+          item: {
+            horizontal: 100,
+            vertical: 40,
+          },
+          axis: 40,
+        },
+        stack: true,
+        orientation: "top",
+        showCurrentTime: true,
+        selectable: false,
+        verticalScroll: true,
+        moveable: true,
+        zoomable: true,
+        maxHeight: window.innerHeight - 250,
+        start: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
+        end: new Date(currentDate.getTime()),
+        cluster: {
+          maxItems: 1,
+          titleTemplate: "{count} Quiet 😴",
+          clusterCriteria: function (firstItem, secondItem) {
+            // Only cluster periods without alerts
+            if (
+              firstItem.className === "alert-item" ||
+              secondItem.className === "alert-item"
+            ) {
+              return false;
+            }
+            return firstItem.className === secondItem.className;
+          },
+        },
+        rollingMode: {
+          follow: false,
+          offset: 0,
+        },
+        zoomMin: 6 * 60 * 60 * 1000,
+        zoomMax: 365 * 24 * 60 * 60 * 1000,
+        min: new Date(
+          new Date(vmaData[0].datetime).getTime() - 30 * 24 * 60 * 60 * 1000
+        ),
+        max: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          currentDate.getDate()
+        ),
+      };
+
+      // Populate latest update section
+      const latestItem = vmaData[vmaData.length - 1];
+      const updateEmoji = document.getElementById("update-emoji");
+      const updateType = document.getElementById("update-type");
+      const updateTime = document.getElementById("update-time");
+      const latestUpdateLink = document.getElementById("latest-update-link");
+
+      updateEmoji.textContent = latestItem.type === "quiet" ? "😴" : "📢";
+      updateType.textContent = latestItem.type === "quiet" ? "Quiet" : "Alert";
+      updateType.style.color =
+        latestItem.type === "quiet" ? "#98a7c3" : "#e61f43";
+
+      const date = new Date(latestItem.datetime);
+      updateTime.textContent = date.toLocaleString("en-SE", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZoneName: "short",
+      });
+
+      const fileName = `${latestItem.datetime}_${latestItem.type}.json`;
+      const githubUrl = `${REPO_URL}/${fileName}`;
+      latestUpdateLink.href = githubUrl;
+
+      // Create a Timeline
+      var container = document.getElementById("timeline");
+      var timeline = new vis.Timeline(container, items, options);
+
+      // Function to update cluster labels
+      function updateClusterLabels() {
+        const clusterItems = document.querySelectorAll(".vis-item.vis-cluster");
+        clusterItems.forEach(function (item) {
+          const content = item.querySelector(".vis-item-content");
+          if (content && content.textContent.match(/^\d+$/)) {
+            const count = content.textContent;
+            content.textContent = count + " Quiet " + "😴";
+          }
+        });
+      }
+
+      const debouncedUpdateClusterLabels = debounce(updateClusterLabels, 100);
+
+      // Update cluster labels on zoom and range change
+      timeline.on("rangechanged", debouncedUpdateClusterLabels);
+      timeline.on("changed", debouncedUpdateClusterLabels);
+
+      // Initial update
+      updateClusterLabels();
+
+      // Update maxHeight on window resize
+      window.addEventListener("resize", function () {
+        timeline.setOptions({
+          ...options,
+          maxHeight: window.innerHeight - 250,
+        });
+      });
+
+      // Scroll into view
+      const initialStart = new Date(
+        new Date(currentDate).getTime() - 24 * 60 * 60 * 1000
+      );
+      const initialEnd = new Date(
+        new Date(currentDate).getTime() + 60 * 60 * 1000
+      );
+      timeline.setWindow(initialStart, initialEnd);
+    </script>
+  </body>
+</html>

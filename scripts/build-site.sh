@@ -1,8 +1,12 @@
 #! /bin/bash
 
-# Run the data file generation script
-./scripts/generate-data-file.sh
+projectRoot="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Replace 'from "./data.js?v=VERSION_PLACEHOLDER";'' in site/index.html with the current timestamp to bust cache
+"$projectRoot/scripts/generate-data-file.sh"
+
+echo "Set version in index.html"
+
 timestamp=$(date +%Y%m%d%H%M%S)
-sed -i "s/data\.js?v=VERSION_PLACEHOLDER/data\.js?v=${timestamp}/" site/index.html
+sed -i "s/data\.js?v=VERSION_PLACEHOLDER/data\.js?v=${timestamp}/" "$projectRoot/site/index.html"
+
+echo "Done! ✅"

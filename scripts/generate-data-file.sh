@@ -1,9 +1,18 @@
 #! /bin/bash
 
-# Create data.js with vmaData array export based on the JSON files in data/vma/
-echo "export const rawData = [" > site/data.js
-for file in data/vma/*.json; do
-  cat "$file" >> site/data.js
-  echo "," >> site/data.js
+projectRoot="$(cd "$(dirname "$0")/.." && pwd)"
+dataFilePath="$projectRoot/site/data.js"
+
+echo "Generating creating $dataFilePath"
+
+echo "export const vmaData = [" > "$dataFilePath"
+for jsonFile in "$projectRoot/data/vma/"*.json; do
+    filename=$(basename "$jsonFile")
+    datetime="${filename%%_*}"
+    type="${filename#*_}"
+    type="${type%.json}"
+    echo "  { datetime: \"$datetime\", type: \"$type\" }," >> "$dataFilePath"
 done
-echo "];" >> site/data.js
+echo "];" >> "$dataFilePath"
+
+echo "Done! ✅"

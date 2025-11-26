@@ -169,7 +169,7 @@
       var options = {
         margin: {
           item: {
-            horizontal: 100,
+            horizontal: 120,
             vertical: 40,
           },
           axis: 40,
@@ -271,6 +271,8 @@
         timeline.setOptions({
           ...options,
           maxHeight: window.innerHeight - 250,
+          start: undefined,
+          end: undefined,
         });
       });
 

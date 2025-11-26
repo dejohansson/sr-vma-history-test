@@ -2,6 +2,8 @@
 <html>
   <head>
     <title>SR VMA Alerts 📢</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta content="utf-8" http-equiv="encoding" />
     <script
       type="text/javascript"
       src="https://unpkg.com/vis-timeline@8.4.0/standalone/umd/vis-timeline-graph2d.min.js"
@@ -128,27 +130,11 @@
 
     <div id="timeline"></div>
 
-    <script>
-      const rawData = [
-        { type: "quiet", datetime: "2025-11-21T01:18:35.000Z" },
-        { type: "quiet", datetime: "2025-11-22T20:15:02.000Z" },
-        { type: "quiet", datetime: "2025-11-23T08:30:38.000Z" },
-        { type: "quiet", datetime: "2025-11-23T14:36:54.000Z" },
-        { type: "quiet", datetime: "2025-11-23T20:45:47.000Z" },
-        { type: "quiet", datetime: "2025-11-24T02:53:05.000Z" },
-        { type: "alert", datetime: "2025-11-24T09:00:56.000Z" },
-        { type: "quiet", datetime: "2025-11-24T15:08:00.000Z" },
-        { type: "quiet", datetime: "2025-11-24T21:15:44.000Z" },
-        { type: "alert", datetime: "2025-11-25T03:20:58.000Z" },
-        { type: "quiet", datetime: "2025-11-25T09:29:40.000Z" },
-        { type: "quiet", datetime: "2025-11-25T15:37:10.000Z" },
-      ];
-    </script>
+    <script type="module">
+      import { vmaData } from "./data.js?v=VERSION_PLACEHOLDER";
 
-    <script type="text/javascript">
-      // Create a DataSet with items
       var items = new vis.DataSet(
-        rawData.map((item, index) => {
+        vmaData.map((item, index) => {
           const fileName = `${item.datetime}_${item.type}.json`;
           const githubUrl = `https://github.com/dejohansson/sr-vma-history-test/blob/main/data/vma/${fileName}`;
           return {
@@ -181,13 +167,13 @@
         moveable: true,
         zoomable: true,
         maxHeight: window.innerHeight - 250,
-        start: new Date(currentDate.getTime() - 24 * 60 * 60 * 1000),
+        start: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
         end: new Date(currentDate.getTime() + 60 * 60 * 1000),
         cluster: {
           maxItems: 1,
           titleTemplate: "{count} Quiet 😴",
           clusterCriteria: function (firstItem, secondItem) {
-            // Only cluster quiet items together, never cluster alerts
+            // Only cluster periods without alerts
             if (
               firstItem.className === "alert-item" ||
               secondItem.className === "alert-item"
@@ -199,12 +185,12 @@
         },
         rollingMode: {
           follow: false,
-          offset: 1 - 1 / 25,
+          offset: 0,
         },
         zoomMin: 6 * 60 * 60 * 1000,
         zoomMax: 365 * 24 * 60 * 60 * 1000,
         min: new Date(
-          new Date(rawData[0].datetime).getTime() - 30 * 24 * 60 * 60 * 1000
+          new Date(vmaData[0].datetime).getTime() - 30 * 24 * 60 * 60 * 1000
         ),
         max: new Date(
           currentDate.getFullYear(),
@@ -214,7 +200,7 @@
       };
 
       // Populate latest update section
-      const latestItem = rawData[rawData.length - 1];
+      const latestItem = vmaData[vmaData.length - 1];
       const updateEmoji = document.getElementById("update-emoji");
       const updateType = document.getElementById("update-type");
       const updateTime = document.getElementById("update-time");
@@ -242,7 +228,6 @@
 
       // Create a Timeline
       var container = document.getElementById("timeline");
-
       var timeline = new vis.Timeline(container, items, options);
 
       // Function to update cluster labels
@@ -275,6 +260,15 @@
           maxHeight: window.innerHeight - 250,
         });
       });
+
+      // Set initial visible window
+      const initialStart = new Date(
+        new Date(currentDate).getTime() - 24 * 60 * 60 * 1000
+      );
+      const initialEnd = new Date(
+        new Date(currentDate).getTime() + 60 * 60 * 1000
+      );
+      timeline.setWindow(initialStart, initialEnd);
     </script>
   </body>
 </html>

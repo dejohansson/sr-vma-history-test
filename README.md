@@ -9,7 +9,7 @@ Generate the data file
 scripts/generate-data-file.sh
 ```
 
-Serve the the site files on localhost using an http server e.g.
+Serve the site files on localhost using an http server e.g.
 
 ```sh
 python3 -m http.server -d site/ 3000

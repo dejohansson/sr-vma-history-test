@@ -13,6 +13,12 @@
       src="https://unpkg.com/vis-timeline@8.4.0/standalone/umd/vis-timeline-graph2d.min.js"
     ></script>
     <style>
+      :root {
+        --header-height: 180px;
+      }
+
+      /* Responsive sizing for small viewports */
+
       body {
         background-color: #202328;
         font-family: Arial, sans-serif;
@@ -23,8 +29,8 @@
 
       #timeline {
         width: 100%;
-        height: calc(100vh - 250px);
-        border: 1px solid #2d2f35;
+        height: calc(100vh - var(--header-height));
+        border: none;
         background-color: #212429;
         overflow: hidden;
       }
@@ -93,6 +99,54 @@
         background-color: #4a9eff;
         width: 3px;
       }
+
+      /* Responsive latest update card */
+      #latest-update-link {
+        transition: all 0.3s ease;
+      }
+
+      @media (max-height: 600px) {
+        :root {
+          --header-height: 70px;
+        }
+
+        body {
+          margin: 2px;
+        }
+
+        #latest-update-link {
+          margin-bottom: 2px !important;
+          padding: 8px 8px !important;
+        }
+
+        #latest-update h2 {
+          display: none;
+        }
+
+        #update-content {
+          gap: 6px !important;
+        }
+
+        #update-content > div {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        #update-emoji,
+        #update-emoji span {
+          font-size: 20px !important;
+        }
+
+        #update-type {
+          font-size: 20px !important;
+          margin-bottom: 0 !important;
+        }
+
+        #update-time {
+          font-size: 16px !important;
+        }
+      }
     </style>
   </head>
 
@@ -103,7 +157,7 @@
       target="_blank"
       style="
         display: block;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         padding: 20px;
         border: 1px solid #2d2f35;
         background-color: #212429;
@@ -240,7 +294,14 @@
         verticalScroll: true,
         moveable: true,
         zoomable: true,
-        maxHeight: window.innerHeight - 250,
+        maxHeight: (() => {
+          const headerHeight = parseInt(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              "--header-height"
+            )
+          );
+          return window.innerHeight - headerHeight;
+        })(),
         start: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
         end: new Date(currentDate.getTime()),
         cluster: {
@@ -309,9 +370,14 @@
 
       // Update maxHeight on window resize
       window.addEventListener("resize", function () {
+        const headerHeight = parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--header-height"
+          )
+        );
         timeline.setOptions({
           ...options,
-          maxHeight: window.innerHeight - 250,
+          maxHeight: window.innerHeight - headerHeight,
           start: undefined,
           end: undefined,
         });

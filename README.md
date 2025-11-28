@@ -1,5 +1,5 @@
-# Sveriges Radio VMA Alerts 📢
-Public archive of important public announcement (VMA) alerts from [vmaapi.sr.se](https://vmaapi.sr.se).
+# Sveriges Radio VMA Alerts
+Archive of important public announcement (VMA) alerts from [vmaapi.sr.se](https://vmaapi.sr.se).
 
 ## Dev
 

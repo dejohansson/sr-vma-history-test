@@ -17,8 +17,6 @@
         --header-height: 180px;
       }
 
-      /* Responsive sizing for small viewports */
-
       body {
         background-color: #202328;
         font-family: Arial, sans-serif;
@@ -35,7 +33,6 @@
         overflow: hidden;
       }
 
-      /* Timeline styling */
       .vis-timeline {
         border: none;
         background-color: #212429;
@@ -54,7 +51,6 @@
         border-color: #52555a;
       }
 
-      /* Item styling */
       .vis-item {
         background-color: #98a7c3;
         border-color: #98a7c3;
@@ -83,7 +79,6 @@
         color: #ffffff;
       }
 
-      /* Panel styling */
       .vis-panel {
         background-color: #212429;
       }
@@ -94,13 +89,21 @@
         font-weight: 500;
       }
 
-      /* Current time line */
       .vis-current-time {
         background-color: #4a9eff;
         width: 3px;
       }
 
-      /* Responsive latest update card */
+      .vis-tooltip {
+        background-color: #2d2f35 !important;
+        color: #c5d1e6 !important;
+        border: 1px solid #52555a !important;
+        border-radius: 4px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+        font-family: Arial, sans-serif !important;
+        padding: 8px 12px !important;
+      }
+
       #latest-update-link {
         transition: all 0.3s ease;
       }
@@ -234,7 +237,7 @@
 
             const iconSpan = document.createElement("span");
             iconSpan.style.fontSize = "24px";
-            iconSpan.textContent = "😴";
+            iconSpan.textContent = sleepingEmoji;
             container.appendChild(iconSpan);
 
             const countSpan = document.createElement("span");
@@ -254,10 +257,9 @@
           if (item.itemType === "quiet") {
             const iconSpan = document.createElement("span");
             iconSpan.style.fontSize = "24px";
-            iconSpan.textContent = "😴";
+            iconSpan.textContent = sleepingEmoji;
             container.appendChild(iconSpan);
           } else {
-            // Create SVG element from string (controlled content, not user input)
             const tempDiv = document.createElement("div");
             tempDiv.innerHTML = loudspeakerSvg
               .replace('fill="#000000"', 'width="24" height="24"')
@@ -276,16 +278,25 @@
           link.href = item.githubUrl;
           link.target = "_blank";
           link.rel = "noopener noreferrer";
+          link.title = new Date(item.start).toLocaleString("en-SE", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          });
           link.appendChild(container);
 
           return link;
         },
         margin: {
           item: {
-            horizontal: 120,
-            vertical: 40,
+            horizontal: 10,
+            vertical: 30,
           },
-          axis: 40,
+          axis: 30,
         },
         stack: true,
         orientation: "top",
@@ -306,7 +317,7 @@
         end: new Date(currentDate.getTime()),
         cluster: {
           maxItems: 1,
-          titleTemplate: "{count} Quiet",
+          titleTemplate: "Double click to expand group",
           clusterCriteria: function (firstItem, secondItem) {
             // Only cluster periods without alerts
             if (
@@ -343,7 +354,7 @@
 
       updateEmoji.innerHTML =
         latestItem.type === "quiet"
-          ? '<span style="font-size: 48px;">😴</span>'
+          ? `<span style="font-size: 48px;">${sleepingEmoji}</span>`
           : loudspeakerSvg.replace('fill="#000000"', 'width="48" height="48"');
       updateType.textContent = latestItem.type === "quiet" ? "Quiet" : "Alert";
       updateType.style.color =
@@ -364,9 +375,16 @@
       const githubUrl = `${REPO_URL}/${fileName}`;
       latestUpdateLink.href = githubUrl;
 
-      // Create a Timeline
+      // Create the Timeline
       var container = document.getElementById("timeline");
       var timeline = new vis.Timeline(container, items, options);
+
+      const initialStart = new Date(
+        new Date(currentDate).getTime() - 24 * 60 * 60 * 1000
+      );
+      const initialEnd = new Date(
+        new Date(currentDate).getTime() + 60 * 60 * 1000
+      );
 
       // Update maxHeight on window resize
       window.addEventListener("resize", function () {
@@ -378,18 +396,12 @@
         timeline.setOptions({
           ...options,
           maxHeight: window.innerHeight - headerHeight,
-          start: undefined,
-          end: undefined,
+          start: initialStart,
+          end: initialEnd,
         });
       });
 
       // Scroll into view
-      const initialStart = new Date(
-        new Date(currentDate).getTime() - 24 * 60 * 60 * 1000
-      );
-      const initialEnd = new Date(
-        new Date(currentDate).getTime() + 60 * 60 * 1000
-      );
       timeline.setWindow(initialStart, initialEnd);
     </script>
   </body>

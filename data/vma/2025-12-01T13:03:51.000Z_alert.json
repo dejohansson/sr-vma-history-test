@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-12-01T14:03:51+01:00",
+  "alerts": [
+    {
+      "identifier": "SRCAP20251201140327E",
+      "sender": "https://vmaapi.sr.se",
+      "sent": "2025-12-01T14:03:27+01:00",
+      "status": "Exercise",
+      "msgType": "Alert",
+      "scope": "Public",
+      "references": null,
+      "note": "This is an exercise. The message is part of a scheduled test of the outdoor warning system. No action is required. Please disregard this alert in a real emergency situation.",
+      "incidents": "SRVMA20251201140327E",
+      "info": [
+        {
+          "language": "sv-SE",
+          "category": [
+            "Safety"
+          ],
+          "event": "Kvartalstest av utomhussignal för viktigt meddelande till allmänheten (VMA)",
+          "urgency": "Immediate",
+          "severity": "Severe",
+          "certainty": "Observed",
+          "expires": "2025-12-08T14:03:27+01:00",
+          "senderName": "Sveriges Radio",
+          "description": "Idag kl 15.00 testas Signalen Viktigt meddelande via de utomhusaggregat (tyfoner) som finns i de flesta städer och tätorter. Signalen består av 7 sekunder långa ljudstötar med 14 sekunders tystnad emellan under två minuter. Idag testas signalen - om du i andra fall hör den ska du gå inomhus, lyssna på radion och stänga dörrar, fönster och ventilation. Idag följs meddelandet av signalen Faran över, en enda lång ljudsignal på 30 sekunder.",
+          "instruction": null,
+          "responseType": null,
+          "web": "https://www.sverigesradio.se/artikel/vma-viktigt-meddelande-till-allmanheten",
+          "parameters": [
+            {
+              "valueName": "Created",
+              "value": "2025-12-01 14:03:36"
+            }
+          ],
+          "area": [
+            {
+              "areaDesc": "Hela landet",
+              "geocode": [
+                {
+                  "valueName": "Sverige",
+                  "value": "00"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

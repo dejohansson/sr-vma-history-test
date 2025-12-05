@@ -211,7 +211,7 @@
 
       var items = new vis.DataSet(
         vmaData.map((item, index) => {
-          const fileName = `${item.datetime}_${item.type}.json`;
+          const fileName = `${item.datetime}_${item.type}_${item.hash}.json`;
           const githubUrl = `${REPO_URL}/${fileName}`;
           return {
             id: index + 1,
@@ -371,7 +371,7 @@
         timeZoneName: "short",
       });
 
-      const fileName = `${latestItem.datetime}_${latestItem.type}.json`;
+      const fileName = `${latestItem.datetime}_${latestItem.type}_${latestItem.hash}.json`;
       const githubUrl = `${REPO_URL}/${fileName}`;
       latestUpdateLink.href = githubUrl;
 
